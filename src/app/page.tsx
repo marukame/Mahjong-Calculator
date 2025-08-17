@@ -1,8 +1,8 @@
 // src/app/page.tsx
 'use client'
 
-import React, { useState } from 'react';
-import { Calculator, Settings } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calculator } from 'lucide-react';
 import { Player, Settings as SettingsType, Result } from '@/types/mahjong';
 import { DEFAULT_PLAYERS, DEFAULT_SETTINGS } from '@/constants/mahjong';
 import SettingsPanel from '@/components/MahjongCalculator/SettingsPanel';
@@ -17,6 +17,25 @@ export default function Home() {
   const [settings, setSettings] = useState<SettingsType>(DEFAULT_SETTINGS);
   const [results, setResults] = useState<Result[] | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // クライアントサイドでマウント完了を待つ
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-gradient-to-r from-pink-400 to-purple-400 p-4 rounded-full inline-block mb-4">
+            <Calculator className="w-8 h-8 text-white" />
+          </div>
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
 
   // プレイヤー名変更
   const handlePlayerNameChange = (index: number, name: string) => {
@@ -70,7 +89,7 @@ export default function Home() {
       <div className="max-w-4xl mx-auto">
         {/* ヘッダー */}
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-6 mb-6 border border-pink-100">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-center">
             <div className="flex items-center space-x-3">
               <div className="bg-gradient-to-r from-pink-400 to-purple-400 p-3 rounded-full">
                 <Calculator className="w-6 h-6 text-white" />
@@ -82,20 +101,15 @@ export default function Home() {
                 <p className="text-gray-800 text-sm">点数を入力して精算を計算しましょう</p>
               </div>
             </div>
-            <button
-              onClick={handleToggleSettings}
-              className="bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white p-3 rounded-full transition-all duration-200 shadow-lg"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
           </div>
         </div>
 
-        {/* 設定パネル */}
+        {/* 設定パネル（アコーディオン形式） */}
         <SettingsPanel
           settings={settings}
           onSettingsChange={handleSettingsChange}
           isVisible={showSettings}
+          onToggle={handleToggleSettings}
         />
 
         {/* プレイヤー入力 */}
