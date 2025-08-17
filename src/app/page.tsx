@@ -4,11 +4,11 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator } from 'lucide-react';
 import { Player, Settings as SettingsType, Result } from '@/types/mahjong';
-import { DEFAULT_PLAYERS, DEFAULT_SETTINGS } from '@/constants/mahjong';
+import { DEFAULT_PLAYERS, DEFAULT_SETTINGS, UMA_PRESETS, DEFAULT_UMA_PRESET } from '@/constants/mahjong';
 import SettingsPanel from '@/components/MahjongCalculator/SettingsPanel';
 import PlayerInput from '@/components/MahjongCalculator/PlayerInput';
-import ResultsDisplay from '@/components/MahjongCalculator/ResultsDisplay';
 import ActionButtons from '@/components/MahjongCalculator/ActionButtons';
+import ResultsDisplay from '@/components/MahjongCalculator/ResultsDisplay';
 import { calculateMahjongResults, validateCalculationSum, debugCalculation } from '@/utils/calculationUtils';
 
 export default function Home() {
@@ -22,8 +22,21 @@ export default function Home() {
   // クライアントサイドでマウント完了を待つ
   useEffect(() => {
     setMounted(true);
-  }, []);
+    
+    // ウマプリセットが設定されていない場合の初期化
+    if (!settings.umaPreset) {
+      const defaultPreset = UMA_PRESETS.find(p => p.id === DEFAULT_UMA_PRESET);
+      if (defaultPreset) {
+        setSettings(prevSettings => ({
+          ...prevSettings,
+          umaPreset: DEFAULT_UMA_PRESET,
+          uma: defaultPreset.uma
+        }));
+      }
+    }
+  }, [settings.umaPreset]);
 
+  // サーバーレンダリング時は何も表示しない
   if (!mounted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 flex items-center justify-center">

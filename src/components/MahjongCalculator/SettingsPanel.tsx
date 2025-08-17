@@ -4,7 +4,7 @@
 import React from 'react';
 import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import { SettingsPanelProps } from '@/types/mahjong';
-import { RATE_OPTIONS } from '@/constants/mahjong';
+import { RATE_OPTIONS, UMA_PRESETS } from '@/constants/mahjong';
 
 interface AccordionSettingsPanelProps extends SettingsPanelProps {
   onToggle: () => void;
@@ -16,11 +16,16 @@ const SettingsPanel: React.FC<AccordionSettingsPanelProps> = ({
   isVisible,
   onToggle
 }) => {
-  const updateUma = (position: keyof typeof settings.uma, value: number) => {
-    onSettingsChange({
-      ...settings,
-      uma: { ...settings.uma, [position]: value }
-    });
+  // ウマプリセット変更時の処理
+  const handleUmaPresetChange = (presetId: string) => {
+    const preset = UMA_PRESETS.find(p => p.id === presetId);
+    if (preset) {
+      onSettingsChange({
+        ...settings,
+        umaPreset: presetId,
+        uma: preset.uma
+      });
+    }
   };
 
   return (
@@ -46,26 +51,12 @@ const SettingsPanel: React.FC<AccordionSettingsPanelProps> = ({
       </div>
 
       {/* アコーディオン内容（条件付き表示） */}
-      <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-        isVisible ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+      <div className={`transition-all duration-300 ease-in-out ${
+        isVisible ? 'max-h-none opacity-100 visible' : 'max-h-0 opacity-0 invisible overflow-hidden'
       }`}>
         <div className="px-6 pb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* オカ設定 */}
-            <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-xl border border-pink-200">
-              <label className="block text-sm font-medium text-purple-800 mb-2">
-                オカ
-              </label>
-              <input
-                type="number"
-                value={settings.oka}
-                onChange={(e) => onSettingsChange({
-                  ...settings, 
-                  oka: parseInt(e.target.value) || 0
-                })}
-                className="w-full px-3 py-2 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            
 
             {/* レート設定 */}
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-xl border border-blue-200">
@@ -126,43 +117,19 @@ const SettingsPanel: React.FC<AccordionSettingsPanelProps> = ({
               <label className="block text-sm font-medium text-green-800 mb-2">
                 ウマ設定
               </label>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <span className="text-green-700">1位:</span>
-                  <input
-                    type="number"
-                    value={settings.uma.first}
-                    onChange={(e) => updateUma('first', parseInt(e.target.value) || 0)}
-                    className="w-full px-2 py-1 border border-green-200 rounded text-xs"
-                  />
-                </div>
-                <div>
-                  <span className="text-green-700">2位:</span>
-                  <input
-                    type="number"
-                    value={settings.uma.second}
-                    onChange={(e) => updateUma('second', parseInt(e.target.value) || 0)}
-                    className="w-full px-2 py-1 border border-green-200 rounded text-xs"
-                  />
-                </div>
-                <div>
-                  <span className="text-green-700">3位:</span>
-                  <input
-                    type="number"
-                    value={settings.uma.third}
-                    onChange={(e) => updateUma('third', parseInt(e.target.value) || 0)}
-                    className="w-full px-2 py-1 border border-green-200 rounded text-xs"
-                  />
-                </div>
-                <div>
-                  <span className="text-green-700">4位:</span>
-                  <input
-                    type="number"
-                    value={settings.uma.fourth}
-                    onChange={(e) => updateUma('fourth', parseInt(e.target.value) || 0)}
-                    className="w-full px-2 py-1 border border-green-200 rounded text-xs"
-                  />
-                </div>
+              <select
+                value={settings.umaPreset}
+                onChange={(e) => handleUmaPresetChange(e.target.value)}
+                className="w-full px-3 py-2 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+              >
+                {UMA_PRESETS.map(preset => (
+                  <option key={preset.id} value={preset.id}>
+                    {preset.label}
+                  </option>
+                ))}
+              </select>
+              <div className="mt-2 text-xs text-green-600">
+                {UMA_PRESETS.find(p => p.id === settings.umaPreset)?.description}
               </div>
             </div>
           </div>

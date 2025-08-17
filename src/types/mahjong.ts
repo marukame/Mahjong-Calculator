@@ -13,11 +13,11 @@ export interface Uma {
 }
 
 export interface Settings {
-  oka: number;        // 保持（互換性のため）
   uma: Uma;
   rate: number;       // 保持（今回は使用しない）
   startingPoints: number; // 持ち点（開始時の点数）
   returnPoints: number;   // 返し点（精算時の基準点）
+  umaPreset: string;      // ウマプリセットID
 }
 
 export interface Result {

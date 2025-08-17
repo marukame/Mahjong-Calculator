@@ -1,5 +1,16 @@
 // src/utils/calculationUtils.ts
 import { Player, Settings, Result } from '@/types/mahjong';
+import { UMA_PRESETS } from '@/constants/mahjong';
+
+/**
+ * ウマプリセットから説明文を取得
+ * @param presetId プリセットID
+ * @returns 説明文
+ */
+export const getUmaDescription = (presetId: string): string => {
+  const preset = UMA_PRESETS.find(p => p.id === presetId);
+  return preset ? preset.description : '';
+};
 
 /**
  * 5捨6入で1000点単位に丸める
@@ -145,6 +156,7 @@ export const validateCalculationSum = (results: Result[]): boolean => {
 export const debugCalculation = (results: Result[], settings: Settings): void => {
   console.log('=== 麻雀精算計算デバッグ ===');
   console.log(`設定: ${settings.startingPoints}点持ち${settings.returnPoints}点返し`);
+  console.log(`ウマ: ${getUmaDescription(settings.umaPreset)}`);
   
   results.forEach(result => {
     if (result.rank === 1) {
@@ -153,7 +165,7 @@ export const debugCalculation = (results: Result[], settings: Settings): void =>
       console.log(`  → ウマ: ${result.umaPoints}`);
       console.log(`  → ポイント: ${result.totalPoints} (2-4位の逆数)`);
     } else {
-      const roundedScore = (result as any).roundedRawScore || roundToThousand(result.rawScore);
+      const roundedScore = (result as Result & { roundedRawScore?: number }).roundedRawScore || roundToThousand(result.rawScore);
       console.log(`${result.rank}位 ${result.name}: ${result.score}点`);
       console.log(`  → 素点: ${result.rawScore} → 丸め: ${roundedScore}`);
       console.log(`  → ベース: ${roundedScore/1000} + ウマ: ${result.umaPoints} = ${result.totalPoints}`);
