@@ -22,19 +22,21 @@ export default function Home() {
   // クライアントサイドでマウント完了を待つ
   useEffect(() => {
     setMounted(true);
-    
-    // ウマプリセットが設定されていない場合の初期化
-    if (!settings.umaPreset) {
+  }, []);
+
+  // ウマプリセットの初期化
+  useEffect(() => {
+    if (mounted && !settings.umaPreset) {
       const defaultPreset = UMA_PRESETS.find(p => p.id === DEFAULT_UMA_PRESET);
       if (defaultPreset) {
-        setSettings(prevSettings => ({
-          ...prevSettings,
+        setSettings(prev => ({
+          ...prev,
           umaPreset: DEFAULT_UMA_PRESET,
           uma: defaultPreset.uma
         }));
       }
     }
-  }, [settings.umaPreset]);
+  }, [mounted, settings.umaPreset]);
 
   // サーバーレンダリング時は何も表示しない
   if (!mounted) {
